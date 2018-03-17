@@ -1,0 +1,42 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #F7F7F7;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  overflow: hidden;
+}
+h1{
+  font-size: 48px;
+  color: #165654;
+  font-weight: 400;
+}
+h2{
+  font-size: 30px;
+  color: #165654;
+  font-weight: 400;
+}
+h3{
+  font-size: 21px;
+  color: black;
+  font-weight: 400;
+}
+button{
+  border: none;
+  cursor: pointer;
+  height: 37px;
+  padding: 0px 15px 0px 15px;
+}
+button.primary{
+  border: 1px solid #1AE8E3;
+  background-color: #1AE8E3;
+  color: white;
+}
+button.secondary{
+  border: 1px solid #1AE8E3;
+  background-color: transparent;
+  color: #1AE8E3;
+}
+button.primary:hover,button.secondary:hover{
+  background-color: #98EDE8;
+  border: 1px solid #98EDE8;
+}

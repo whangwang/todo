@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <%- include('layout/include_header') %>
+    <link rel="stylesheet" href="/stylesheets/index/style.css" />
+  </head>
+  <body>
+    <div class="login-area">
+      <h1>Login</h1>
+      <div class="g-signin2" data-onsuccess="onSignIn" ></div>
+      <button class="use-facebook">使用Facebook帳號登入</button><br>
+      <button class="use-google">使用Google帳號登入</button>
+    </div>
+  </body>
+  <script>
+  function onSignIn(googleUser) {
+    var id_token = googleUser.getAuthResponse().id_token;
+    $.post('/login',{
+      "id_token": id_token
+    },function(data){
+      if(data.status){
+        console.log('success');
+        window.location = "/main" ;
+      }else{
+        alert(data.title);
+      }
+    });
+  }
+  /*
+  firebase.auth().getRedirectResult().then(function(result) {
+    if (result.credential) {
+      var token = result.credential.accessToken;
+      var user = result.user;
+      console.log(result);
+      window.location = "/main" ;
+    }else{
+      if(firebase.auth().currentUser!=null){
+        window.location="/main";
+      }
+      console.log(firebase.auth().currentUser);
+    }
+  }).catch(function(error) {
+    var errorCode = error.code;
+    var errorMessage = error.message;
+    var email = error.email;
+    var credential = error.credential;
+  });
+  */
+    $(document).ready(function(){
+      $('body').on('click','.use-google',function(){
+        $.post('ajax_login_google');
+        window.location = "/main";
+      });
+    });
+  </script>
+</html>

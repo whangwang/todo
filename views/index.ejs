@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <%- include('layout/include_header') %>
+    <link rel="stylesheet" href="/stylesheets/index/style.css" />
+  </head>
+  <body>
+    <div class="cover-all">
+      <img src="/images/loading.svg" />
+    </div>
+    <div class="login-area">
+      <h1>嗨</h1>
+      <p>輸入你的Email帳號：</p>
+      <input id="email-addr" type="email"></input><br>
+      <button class="use-google">繼續</button>
+      <input id="paddword-area" type="password" style="display: none;"></input><br>
+      <button class="login-btn" style="display: none;">繼續</button>
+      <input id="new-paddword-area" type="password" style="display: none;" placeholder="請輸入密碼:"></input>
+      <br>
+      <input id="new-paddword-confirm" type="password" style="display: none;" placeholder="請重複輸入密碼:"></input>
+      <br>
+      <button class="signup-btn" style="display: none;">Submit</button>
+    </div>
+  </body>
+  <script>
+  function isEmail(email) {
+    var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+    return regex.test(email);
+  }
+    $(document).ready(function(){
+      $('#email-addr').focus();
+      $('#email-addr').keypress(function (e) {
+        if (e.which == 13) {
+          console.log('test');
+          if(isEmail($('#email-addr').val())){
+            $('body').addClass('loading');
+            $.post('/check_email',{
+              email: $('#email-addr').val()
+            },function(data){
+              $('body').removeClass('loading');
+              if(data.status){
+                $('.use-google').hide();
+                $('#email-addr').hide();
+                if(data.new){
+                  $('.login-area h1').html('初次見面，幫自己挑個密碼吧!')
+                  $('.login-area p').html('請選擇密碼');
+                  $('#new-paddword-area').show();
+                  $('#new-paddword-confirm').show();
+                  $('.signup-btn').show();
+                  $('.signup-btn').attr('email',data.email);
+                  $('#new-paddword-area').focus();
+                }else{
+                  $('.login-area h1').html('歡迎回來，'+String(data.email).split('@')[0]);
+                  $('.login-area p').html('請輸入密碼');
+                  $('#paddword-area').show();
+                  $('.login-btn').show();
+                  $('.login-btn').attr('email',data.email);
+                  $('#paddword-area').focus();
+                }
+              }
+            });
+          }else{
+            alert('Email格式錯誤!');
+          }
+          return false;
+        }
+      });
+      $('#paddword-area').keypress(function(e){
+        if (e.which == 13) {
+          $('body').addClass('loading');
+          $.post('/login_email_password',{
+            email: $('.login-btn').attr('email'),
+            password: $('#paddword-area').val()
+          },function(data){
+            if(data.status){
+              window.location = "/main";
+            }else{
+              $('body').removeClass('loading');
+              alert(data.err);
+            }
+          });
+          return false;
+        }
+      });
+      $('#new-paddword-area').keypress(function(e){
+        if (e.which == 13) {
+          $('#new-paddword-confirm').focus();
+          return false;
+        }
+      });
+      $('#new-paddword-confirm').keypress(function(e){
+        if (e.which == 13) {
+          $('body').addClass('loading');
+          if($('#new-paddword-area').val()==$('#new-paddword-confirm').val()){
+            $.post('/signup_email_password',{
+              email: $('.signup-btn').attr('email'),
+              password: $('#new-paddword-area').val()
+            },function(data){
+              if(data.status){
+                window.location = "/main";
+              }else{
+                $('body').removeClass('loading');
+                alert(data.err);
+              }
+            });
+          }else{
+            alert('密碼驗證錯誤!');
+          }
+          return false;
+        }
+      });
+      $('body').on('click','.signup-btn',function(){
+        $('body').addClass('loading');
+        if($('#new-paddword-area').val()==$('#new-paddword-confirm').val()){
+          $.post('/signup_email_password',{
+            email: $(this).attr('email'),
+            password: $('#new-paddword-area').val()
+          },function(data){
+            if(data.status){
+              window.location = "/main";
+            }else{
+              $('body').removeClass('loading');
+              alert(data.err);
+            }
+          });
+        }else{
+          alert('密碼驗證錯誤!');
+        }
+      });
+      $('body').on('click','.login-btn',function(){
+        $('body').addClass('loading');
+        $.post('/login_email_password',{
+          email: $(this).attr('email'),
+          password: $('#paddword-area').val()
+        },function(data){
+          if(data.status){
+            window.location = "/main";
+          }else{
+            $('body').removeClass('loading');
+            alert(data.err);
+          }
+        });
+      });
+      $('body').on('click','.use-google',function(){
+        if(isEmail($('#email-addr').val())){
+          $('body').addClass('loading');
+          $.post('/check_email',{
+            email: $('#email-addr').val()
+          },function(data){
+            $('body').removeClass('loading');
+            if(data.status){
+              $('.use-google').hide();
+              $('#email-addr').hide();
+              if(data.new){
+                $('.login-area h1').html('初次見面，幫自己挑個密碼吧!')
+                $('.login-area p').html('請選擇密碼');
+                $('#new-paddword-area').show();
+                $('#new-paddword-confirm').show();
+                $('.signup-btn').show();
+                $('.signup-btn').attr('email',data.email);
+                $('#new-paddword-area').focus();
+              }else{
+                $('.login-area h1').html('歡迎回來，'+String(data.email).split('@')[0]);
+                $('.login-area p').html('請輸入密碼');
+                $('#paddword-area').show();
+                $('.login-btn').show();
+                $('.login-btn').attr('email',data.email);
+                $('#paddword-area').focus();
+              }
+            }
+          });
+        }else{
+          alert('Email格式錯誤!');
+        }
+      });
+    });
+  </script>
+</html>

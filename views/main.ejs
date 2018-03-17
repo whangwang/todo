@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ToDo</title>
+    <%- include('layout/include_header') %>
+    <link rel="stylesheet" href="/stylesheets/main/style.css" />
+    <script src="/javascripts/main/effects.js"></script>
+    <script>
+      $(document).ready(function(){
+        <% if(typeof name == "undefined"){ %>
+        $('.modal-background.change-name-modal').fadeIn(500);
+        <% } %>
+        $('body').on('click','.modal-background',function(e){
+          $(this).fadeOut(500);
+          <% if(new_user){ %>
+            $('.new-intro:not(.old)').fadeIn(500);
+            $('.new-intro').addClass('old');
+            $('.new-intro img').hide();
+            $('.new-intro p').hide();
+            $('.new-intro img').eq(parseInt($('.new-intro').attr('index'))).show();
+            $('.new-intro p').eq(parseInt($('.new-intro').attr('index'))).show();
+          <% } %>
+        });
+        $('body').on('click','.cancel-change-name-btn',function(){
+          $('.modal-background.change-name-modal').fadeOut(500);
+          <% if(new_user){ %>
+            $('.new-intro:not(.old)').fadeIn(500);
+            $('.new-intro').addClass('old');
+            $('.new-intro img').hide();
+            $('.new-intro p').hide();
+            $('.new-intro img').eq(parseInt($('.new-intro').attr('index'))).show();
+            $('.new-intro p').eq(parseInt($('.new-intro').attr('index'))).show();
+          <% } %>
+        });
+        $('body').on('click','.change-name-btn',function(){
+          if($('.change-name').val()!=""){
+            $('body').addClass('loading');
+            $.post('/ajax_change_name',{
+              uid: '<%= uid %>',
+              name: $('.change-name').val()
+            },function(data){
+              if(data.status){
+                $('body').removeClass('loading');
+                $('.modal-background').fadeOut(500);
+                $('.user-area label').html(data.name);
+                <% if(new_user){ %>
+                  $('.new-intro:not(.old)').fadeIn(500);
+                  $('.new-intro').addClass('old');
+                  $('.new-intro img').hide();
+                  $('.new-intro p').hide();
+                  $('.new-intro img').eq(parseInt($('.new-intro').attr('index'))).show();
+                  $('.new-intro p').eq(parseInt($('.new-intro').attr('index'))).show();
+                <% } %>
+              }else{
+                alert('error');
+                $('body').removeClass('loading');
+                $('.modal-background').fadeOut(500);
+                <% if(new_user){ %>
+                  $('.new-intro:not(.old)').fadeIn(500);
+                  $('.new-intro').addClass('old');
+                  $('.new-intro img').hide();
+                  $('.new-intro p').hide();
+                  $('.new-intro img').eq(parseInt($('.new-intro').attr('index'))).show();
+                  $('.new-intro p').eq(parseInt($('.new-intro').attr('index'))).show();
+                <% } %>
+              }
+            });
+          }
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div class="cover-all">
+      <img src="/images/loading.svg" />
+    </div>
+    <div class="modal-background new-intro" index="0">
+      <div class="modal-content">
+        <h3>新手上路!</h3>
+        <img src="/images/intro/1.png" />
+        <p>
+          點擊"Edit"來編輯分類清單。你可以新增分類，也可以修改已經存在的分類名，或是刪除分類。無論如何，最後請記得點擊"Save"儲存！
+        </p>
+        <img src="/images/intro/2.png" />
+        <p>
+          點擊"+"來新增事件！
+        </p>
+        <img src="/images/intro/3.png" />
+        <p>
+          點擊"detail"來檢視事件細節。
+        </p>
+        <img src="/images/intro/4.png" />
+        <p>
+          點擊編輯icon來編輯事件。
+        </p>
+        <img src="/images/intro/5.png" />
+        <p>
+          點擊刪除icon來刪除事件。
+        </p>
+        <img src="/images/intro/6.png" />
+        <p>
+          拖曳移動icon來重新排序事件。
+        </p>
+        <img src="/images/intro/7.png" />
+        <p>
+          點擊左側圈圈標注事件完成。
+        </p>
+        <button class="new-intro-next">下一步</button>
+        <button class="new-intro-skip">跳過</button>
+      </div>
+    </div>
+    <div class="modal-background change-name-modal">
+      <div class="modal-content">
+        <h3>告訴我們你叫什麼名字吧!</h3>
+        <input class="change-name" type="text" placeholder="請輸入您的姓名(僅供私人檢視)" value="<%= name %>"></input>
+        <button class="change-name-btn">確定</button>
+        <button class="cancel-change-name-btn">取消</button>
+      </div>
+    </div>
+    <div class="modal-background user-panel-modal">
+      <div class="modal-content user-panel-modal-content">
+        <h5>嗨，<%= name %></h5>
+        <button class="logout">登出</button>
+        <button class="user-change-name">更換名稱...</button>
+      </div>
+    </div>
+    <div class="modal-background add-new-event-modal">
+      <div class="modal-content add-new-event">
+        <div class="modal-header">
+          <input type="text" class="add-new-event-title" placeholder="Event title..." />
+        </div>
+        <div class="input-component">
+          <label>Category</label>
+          <br>
+          <select>
+            <option>All</option>
+            <option>Programming Class</option>
+            <option>Staytuned INC.</option>
+          </select>
+        </div>
+        <div class="input-component">
+          <label>Description</label>
+          <br>
+          <textarea></textarea>
+        </div>
+        <button class="add-event-confirm">新增</button>
+        <button class="add-event-cancel">取消</button>
+      </div>
+    </div>
+    <div class="modal-background edit-event-modal">
+      <input type="hidden" class="edit-key" value="" />
+      <div class="modal-content add-new-event">
+        <div class="modal-header">
+          <input type="text" class="add-new-event-title" placeholder="Event title..." />
+        </div>
+        <div class="input-component">
+          <label>Category</label>
+          <br>
+          <select>
+            <option>All</option>
+            <option>Programming Class</option>
+            <option>Staytuned INC.</option>
+          </select>
+        </div>
+        <div class="input-component">
+          <label>Description</label>
+          <br>
+          <textarea></textarea>
+        </div>
+        <button class="edit-event-confirm">更新</button>
+        <button class="edit-event-cancel">取消</button>
+      </div>
+    </div>
+    <div class="left-menu">
+      <label class="edit-category-btn">Edit...</label>
+      <h2>Category</h2>
+      <% for( var i = 0; i < category.length; i++ ){ %>
+        <button <% if(i==0){ %>class="active first"<% } %> data-id="<%= category[i].id %>"><%= category[i].name %></button><br>
+        <% if(i!=0){ %>
+        <div class="category-list-edit" data-id="<%= category[i].id %>">
+          <svg
+             class="remove-category-btn"
+             xmlns:dc="http://purl.org/dc/elements/1.1/"
+             xmlns:cc="http://creativecommons.org/ns#"
+             xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+             xmlns:svg="http://www.w3.org/2000/svg"
+             xmlns="http://www.w3.org/2000/svg"
+             xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+             xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+             viewBox="0 -256 1792 1792"
+             id="svg2989"
+             version="1.1"
+             inkscape:version="0.48.3.1 r9886"
+             width="100%"
+             height="100%"
+             sodipodi:docname="remove_circle_font_awesome.svg">
+            <metadata
+               id="metadata2999">
+              <rdf:RDF>
+                <cc:Work
+                   rdf:about="">
+                  <dc:format>image/svg+xml</dc:format>
+                  <dc:type
+                     rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+                </cc:Work>
+              </rdf:RDF>
+            </metadata>
+            <defs
+               id="defs2997" />
+            <sodipodi:namedview
+               pagecolor="#ffffff"
+               bordercolor="#666666"
+               borderopacity="1"
+               objecttolerance="10"
+               gridtolerance="10"
+               guidetolerance="10"
+               inkscape:pageopacity="0"
+               inkscape:pageshadow="2"
+               inkscape:window-width="640"
+               inkscape:window-height="480"
+               id="namedview2995"
+               showgrid="false"
+               inkscape:zoom="0.13169643"
+               inkscape:cx="896"
+               inkscape:cy="896"
+               inkscape:window-x="0"
+               inkscape:window-y="25"
+               inkscape:window-maximized="0"
+               inkscape:current-layer="svg2989" />
+            <g
+               transform="matrix(1,0,0,-1,106.30508,1285.4237)"
+               id="g2991">
+              <path
+                 d="m 1125,448 q 0,-27 -18,-45 L 1005,301 q -18,-18 -45,-18 -27,0 -45,18 L 768,448 621,301 q -18,-18 -45,-18 -27,0 -45,18 L 429,403 q -18,18 -18,45 0,27 18,45 L 576,640 429,787 q -18,18 -18,45 0,27 18,45 l 102,102 q 18,18 45,18 27,0 45,-18 L 768,832 915,979 q 18,18 45,18 27,0 45,-18 l 102,-102 q 18,-18 18,-45 0,-27 -18,-45 L 960,640 1107,493 q 18,-18 18,-45 z m 155,192 q 0,104 -40.5,198.5 Q 1199,933 1130,1002 1061,1071 966.5,1111.5 872,1152 768,1152 664,1152 569.5,1111.5 475,1071 406,1002 337,933 296.5,838.5 256,744 256,640 256,536 296.5,441.5 337,347 406,278 475,209 569.5,168.5 664,128 768,128 872,128 966.5,168.5 1061,209 1130,278 1199,347 1239.5,441.5 1280,536 1280,640 z m 256,0 Q 1536,431 1433,254.5 1330,78 1153.5,-25 977,-128 768,-128 559,-128 382.5,-25 206,78 103,254.5 0,431 0,640 0,849 103,1025.5 206,1202 382.5,1305 559,1408 768,1408 977,1408 1153.5,1305 1330,1202 1433,1025.5 1536,849 1536,640 z"
+                 id="path2993"
+                 inkscape:connector-curvature="0"
+                 style="fill:currentColor" />
+            </g>
+          </svg>
+          <input class="edit-category-input" type="text" value="<%= category[i].name %>"/>
+        </div>
+        <% } %>
+      <% } %>
+      <div class="category-list-edit sample" data-id="new-add">
+        <svg
+           class="remove-category-btn"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xmlns:cc="http://creativecommons.org/ns#"
+           xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+           xmlns:svg="http://www.w3.org/2000/svg"
+           xmlns="http://www.w3.org/2000/svg"
+           xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+           xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+           viewBox="0 -256 1792 1792"
+           id="svg2989"
+           version="1.1"
+           inkscape:version="0.48.3.1 r9886"
+           width="100%"
+           height="100%"
+           sodipodi:docname="remove_circle_font_awesome.svg">
+          <metadata
+             id="metadata2999">
+            <rdf:RDF>
+              <cc:Work
+                 rdf:about="">
+                <dc:format>image/svg+xml</dc:format>
+                <dc:type
+                   rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+              </cc:Work>
+            </rdf:RDF>
+          </metadata>
+          <defs
+             id="defs2997" />
+          <sodipodi:namedview
+             pagecolor="#ffffff"
+             bordercolor="#666666"
+             borderopacity="1"
+             objecttolerance="10"
+             gridtolerance="10"
+             guidetolerance="10"
+             inkscape:pageopacity="0"
+             inkscape:pageshadow="2"
+             inkscape:window-width="640"
+             inkscape:window-height="480"
+             id="namedview2995"
+             showgrid="false"
+             inkscape:zoom="0.13169643"
+             inkscape:cx="896"
+             inkscape:cy="896"
+             inkscape:window-x="0"
+             inkscape:window-y="25"
+             inkscape:window-maximized="0"
+             inkscape:current-layer="svg2989" />
+          <g
+             transform="matrix(1,0,0,-1,106.30508,1285.4237)"
+             id="g2991">
+            <path
+               d="m 1125,448 q 0,-27 -18,-45 L 1005,301 q -18,-18 -45,-18 -27,0 -45,18 L 768,448 621,301 q -18,-18 -45,-18 -27,0 -45,18 L 429,403 q -18,18 -18,45 0,27 18,45 L 576,640 429,787 q -18,18 -18,45 0,27 18,45 l 102,102 q 18,18 45,18 27,0 45,-18 L 768,832 915,979 q 18,18 45,18 27,0 45,-18 l 102,-102 q 18,-18 18,-45 0,-27 -18,-45 L 960,640 1107,493 q 18,-18 18,-45 z m 155,192 q 0,104 -40.5,198.5 Q 1199,933 1130,1002 1061,1071 966.5,1111.5 872,1152 768,1152 664,1152 569.5,1111.5 475,1071 406,1002 337,933 296.5,838.5 256,744 256,640 256,536 296.5,441.5 337,347 406,278 475,209 569.5,168.5 664,128 768,128 872,128 966.5,168.5 1061,209 1130,278 1199,347 1239.5,441.5 1280,536 1280,640 z m 256,0 Q 1536,431 1433,254.5 1330,78 1153.5,-25 977,-128 768,-128 559,-128 382.5,-25 206,78 103,254.5 0,431 0,640 0,849 103,1025.5 206,1202 382.5,1305 559,1408 768,1408 977,1408 1153.5,1305 1330,1202 1433,1025.5 1536,849 1536,640 z"
+               id="path2993"
+               inkscape:connector-curvature="0"
+               style="fill:currentColor" />
+          </g>
+        </svg>
+        <input class="edit-category-input" type="text" value="未命名類別"/>
+      </div>
+      <div class="category-list-add">
+        <svg  class="category-add-svg" width="1792" height="1792" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1600 736v192q0 40-28 68t-68 28h-416v416q0 40-28 68t-68 28h-192q-40 0-68-28t-28-68v-416h-416q-40 0-68-28t-28-68v-192q0-40 28-68t68-28h416v-416q0-40 28-68t68-28h192q40 0 68 28t28 68v416h416q40 0 68 28t28 68z"/></svg>
+        <label>新增分類</label>
+      </div>
+    </div>
+    <div class="mobile-category-background"></div>
+    <div class="right-menu">
+      <div class="content">
+        <img class="mobile-category-btn" src="/images/ham.svg" />
+        <table class="user-area">
+          <tr>
+            <td><img src="/images/user.svg" /></td>
+            <td><label><%= name %></label></td>
+          </tr>
+        </table>
+        <h2>ToDos</h2>
+        <p><%= week[now].month %> <%= week[now].date %>, <%= week[now].year %></p>
+        <svg  class="add-event-btn" width="1792" height="1792" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1600 736v192q0 40-28 68t-68 28h-416v416q0 40-28 68t-68 28h-192q-40 0-68-28t-28-68v-416h-416q-40 0-68-28t-28-68v-192q0-40 28-68t68-28h416v-416q0-40 28-68t68-28h192q40 0 68 28t28 68v416h416q40 0 68 28t28 68z"/></svg>
+        <h3 class="time-stamp mobile-active" >Waiting</h3>
+        <h3 class="list-finished" >Finished</h3>
+        <div class="user-list active mobile-active">
+          <ul id="todo-list">
+            <%
+              var finish_todo = [];
+              var unfinish_todo = [];
+              for( var i = 0; i < todo.length; i++ ){
+                if(todo[i].status)finish_todo.push(todo[i]);
+                else unfinish_todo.push(todo[i]);
+              }
+              finish_todo.sort(function(a,b){
+                return a.order > b.order
+              });
+              unfinish_todo.sort(function(a,b){
+                return a.order > b.order
+              });
+            %>
+            <% for( var i = 0; i < unfinish_todo.length; i++ ){ %>
+              <li class="ui-state-default <%= unfinish_todo[i].category_id %>-list" order="<%= unfinish_todo[i].order %>" category="<%= unfinish_todo[i].category_id %>" key="<%= unfinish_todo[i].key %>">
+                <div class="checkbox"></div>
+                <img class="list-sort-handle" src="/images/dragicon.svg" />
+                <img class="list-remove-todo" src="/images/delete-todo.svg" />
+                <img class="list-edit-todo" src="/images/edit-todo.svg" />
+                <p class="category"><%= unfinish_todo[i].category_name %></p>
+                <p class="title">
+                  <%= unfinish_todo[i].title %>
+                </p>
+                <div class="detail-icon">
+                  <label>Detail</label>
+                  <svg version="1.1"
+                   id="Layer_1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:svg="http://www.w3.org/2000/svg"
+                   xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 612 635.5"
+                   style="enable-background:new 0 0 612 635.5;" xml:space="preserve">
+                <g>
+                  <path class="st0" d="M575.3,215.5c0,4.7-1.8,8.8-5.4,12.5L317.5,480.4c-3.6,3.6-7.8,5.4-12.5,5.4c-4.7,0-8.8-1.8-12.5-5.4
+                    L40.1,227.9c-3.6-3.6-5.4-7.8-5.4-12.5c0-4.7,1.8-8.8,5.4-12.5l27.1-27.1c3.6-3.6,7.8-5.4,12.5-5.4c4.7,0,8.8,1.8,12.5,5.4
+                    L305,388.8l212.9-212.9c3.6-3.6,7.8-5.4,12.5-5.4c4.7,0,8.8,1.8,12.5,5.4l27.1,27.1C573.5,206.6,575.3,210.8,575.3,215.5
+                    L575.3,215.5z"/>
+                </g>
+              </svg></div>
+                <div class="detail-area">
+                    <p>
+                      <% if(typeof unfinish_todo[i].description != "undefined"){ %>
+                      <%- unfinish_todo[i].description.replace(/\n/g,'<br />') %>
+                      <% } %>
+                    </p>
+                </div>
+              </li>
+            <% } %>
+          </ul>
+        </div>
+        <div class="finish-list active">
+          <ul id="finished-list">
+            <% for( var i = 0; i < finish_todo.length; i++ ){ %>
+              <li class="ui-state-default <%= finish_todo[i].category_id %>-list" order="<%= finish_todo[i].order %>" category="<%= finish_todo[i].category_id %>" key="<%= finish_todo[i].key %>">
+                <div class="checkbox" style="visibility: hidden;"></div>
+                <img class="finish-list-sort-handle" src="/images/dragicon.svg" style="display: none;" />
+                <p class="category"><%= finish_todo[i].category_name %></p>
+                <p class="title">
+                  <%= finish_todo[i].title %>
+                </p>
+                <div class="detail-icon">
+                  <label>Detail</label>
+                  <svg version="1.1"
+                   id="Layer_1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:svg="http://www.w3.org/2000/svg"
+                   xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 612 635.5"
+                   style="enable-background:new 0 0 612 635.5;" xml:space="preserve">
+                <g>
+                  <path class="st0" d="M575.3,215.5c0,4.7-1.8,8.8-5.4,12.5L317.5,480.4c-3.6,3.6-7.8,5.4-12.5,5.4c-4.7,0-8.8-1.8-12.5-5.4
+                    L40.1,227.9c-3.6-3.6-5.4-7.8-5.4-12.5c0-4.7,1.8-8.8,5.4-12.5l27.1-27.1c3.6-3.6,7.8-5.4,12.5-5.4c4.7,0,8.8,1.8,12.5,5.4
+                    L305,388.8l212.9-212.9c3.6-3.6,7.8-5.4,12.5-5.4c4.7,0,8.8,1.8,12.5,5.4l27.1,27.1C573.5,206.6,575.3,210.8,575.3,215.5
+                    L575.3,215.5z"/>
+                </g>
+              </svg></div>
+                <div class="detail-area">
+                    <p>
+                      <% if(typeof finish_todo[i].description != "undefined"){ %>
+                      <%- finish_todo[i].description.replace(/\n/g,'<br />') %>
+                      <% } %>
+                    </p>
+                </div>
+              </li>
+            <% } %>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
